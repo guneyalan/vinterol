@@ -6,6 +6,8 @@ import dk.kea.vinterol.service.SkierService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping
 @CrossOrigin
@@ -15,6 +17,12 @@ public class SkierController {
 
     public SkierController(SkierService skierService) {
         this.skierService = skierService;
+    }
+
+    // GET /skiers (til dropdowns)
+    @GetMapping("/skiers")
+    public ResponseEntity<List<SkierResponseDTO>> getAll() {
+        return ResponseEntity.ok(skierService.getAllSkiers());
     }
 
     // POST /skiers

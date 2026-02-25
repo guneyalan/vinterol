@@ -32,21 +32,14 @@ public class SkierService {
         Nation nation = nationRepository.findById(req.nationId)
                 .orElseThrow(() -> new IllegalArgumentException("Nation not found: " + req.nationId));
 
-        Skier skier = new Skier(req.name.trim(), nation);
-        Skier saved = skierRepository.save(skier);
+        Skier saved = skierRepository.save(new Skier(req.name.trim(), nation));
         return toDTO(saved);
     }
 
     public SkierResponseDTO updateSkier(Long id, SkierRequestDTO req) {
-        if (id == null) {
-            throw new IllegalArgumentException("id is required");
-        }
-        if (req == null || req.name == null || req.name.isBlank()) {
-            throw new IllegalArgumentException("Skier name is required");
-        }
-        if (req.nationId == null) {
-            throw new IllegalArgumentException("nationId is required");
-        }
+        if (id == null) throw new IllegalArgumentException("id is required");
+        if (req == null || req.name == null || req.name.isBlank()) throw new IllegalArgumentException("Skier name is required");
+        if (req.nationId == null) throw new IllegalArgumentException("nationId is required");
 
         Skier skier = skierRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Skier not found: " + id));
@@ -62,26 +55,23 @@ public class SkierService {
     }
 
     public void deleteSkier(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("id is required");
-        }
-        if (!skierRepository.existsById(id)) {
-            throw new IllegalArgumentException("Skier not found: " + id);
-        }
+        if (id == null) throw new IllegalArgumentException("id is required");
+        if (!skierRepository.existsById(id)) throw new IllegalArgumentException("Skier not found: " + id);
         skierRepository.deleteById(id);
     }
 
     public List<SkierResponseDTO> getSkiersByNation(Long nationId) {
-        if (nationId == null) {
-            throw new IllegalArgumentException("nationId is required");
-        }
-
-        // ✅ NYT: hvis nation ikke findes -> fejl (så frontend kan vise error)
-        if (!nationRepository.existsById(nationId)) {
-            throw new IllegalArgumentException("Nation not found: " + nationId);
-        }
+        if (nationId == null) throw new IllegalArgumentException("nationId is required");
+        if (!nationRepository.existsById(nationId)) throw new IllegalArgumentException("Nation not found: " + nationId);
 
         return skierRepository.findByNationId(nationId).stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
+    //   til dropdowns i frontend
+    public List<SkierResponseDTO> getAllSkiers() {
+        return skierRepository.findAll().stream()
                 .map(this::toDTO)
                 .toList();
     }

@@ -2,65 +2,131 @@
 <html lang="da">
 <head>
   <meta charset="UTF-8">
-  <title>Vinter OL</title>
+  <title>Vinter OL 2026</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
+<div class="container">
 
-<h1>Vinter OL – Styrtløb</h1>
+  <div class="header">
+    <h1>Vinter OL 2026</h1>
+  </div>
 
-<div id="statusBox" class="status hidden"></div>
+  <div id="statusBox" class="status hidden"></div>
 
-<!-- ==================== COMPETITIONS ==================== -->
-<h2>Konkurrencer</h2>
-<button onclick="loadCompetitions()">Load Competitions</button>
-<ul id="competitionList"></ul>
+  <div class="grid">
 
-<!-- ==================== LEADERBOARD ==================== -->
-<h2>Leaderboard</h2>
-<p>Vælg en konkurrence ovenfor for at se leaderboard.</p>
+    <!-- CREATE NATION -->
+    <section class="card">
+      <h2>Opret nation</h2>
+      <div class="row">
+        <input type="text" id="nationNameInput" placeholder="Nation name">
+        <button onclick="createNation()">Create</button>
+      </div>
+    </section>
 
-<table>
-  <thead>
-  <tr>
-    <th>Position</th>
-    <th>Skier</th>
-    <th>Nation</th>
-    <th>Total Time (sek)</th>
-  </tr>
-  </thead>
-  <tbody id="leaderboardBody"></tbody>
-</table>
+    <!-- CREATE SKIER -->
+    <section class="card">
+      <h2>Opret løber</h2>
+      <div class="row">
+        <input type="text" id="skierNameInput" placeholder="Skier name">
+        <select id="nationSelectForSkier"></select>
+        <button onclick="createSkier()">Create</button>
+      </div>
+    </section>
 
-<!-- ==================== SKIERS BY NATION ==================== -->
-<h2>Løbere pr. nation</h2>
+    <!-- CREATE COMPETITION -->
+    <section class="card">
+      <h2>Opret konkurrence</h2>
+      <div class="row">
+        <input type="text" id="competitionNameInput" placeholder="Competition name">
+        <input type="date" id="competitionDateInput">
+        <button onclick="createCompetition()">Create</button>
+      </div>
+    </section>
 
-<div class="row">
-  <input type="number" id="nationIdInput" placeholder="Nation ID">
-  <button onclick="loadSkiers()">Load Skiers</button>
+    <!-- CREATE RUN -->
+    <section class="card">
+      <h2>Opret run i konkurrence</h2>
+      <div class="row">
+        <select id="competitionSelectForRun"></select>
+        <input type="number" id="runNumberInput" placeholder="Run number">
+        <button onclick="createRun()">Create</button>
+      </div>
+    </section>
+
+    <!-- CREATE RESULT -->
+    <section class="card span-2">
+      <h2>Registrér resultat</h2>
+      <div class="row" style="margin-bottom: 10px;">
+        <select id="competitionSelectForRuns"></select>
+      </div>
+      <div class="row">
+        <select id="runSelectForResult"></select>
+        <select id="skierSelectForResult"></select>
+        <input type="number" step="0.01" id="timeSecondsInput" placeholder="Time (seconds)">
+        <button onclick="createResult()">Create</button>
+      </div>
+    </section>
+
+    <!-- VIEW COMPETITIONS -->
+    <section class="card">
+      <h2>Konkurrencer</h2>
+      <div class="row">
+        <button class="secondary" onclick="loadCompetitions()">Load</button>
+      </div>
+      <ul id="competitionList" class="list"></ul>
+    </section>
+
+    <!-- VIEW LEADERBOARD -->
+    <section class="card">
+      <h2>Leaderboard</h2>
+      <table>
+        <thead>
+        <tr>
+          <th>Position</th>
+          <th>Skier</th>
+          <th>Nation</th>
+          <th>Total (sek)</th>
+        </tr>
+        </thead>
+        <tbody id="leaderboardBody"></tbody>
+      </table>
+    </section>
+
+    <!-- VIEW NATION SKIERS -->
+    <section class="card">
+      <h2>Nationer og deres løbere</h2>
+      <div class="row">
+        <select id="nationSelectForView"></select>
+        <button class="secondary" onclick="loadSkiersForSelectedNation()">Load</button>
+      </div>
+      <ul id="skierList" class="list"></ul>
+    </section>
+
+    <!-- VIEW RUN RESULTS -->
+    <section class="card">
+      <h2>Resultater for et run</h2>
+      <div class="row">
+        <select id="runSelectForView"></select>
+        <button class="secondary" onclick="loadResultsForSelectedRun()">Load</button>
+      </div>
+
+      <table>
+        <thead>
+        <tr>
+          <th>Skier</th>
+          <th>Nation</th>
+          <th>Time (sek)</th>
+        </tr>
+        </thead>
+        <tbody id="runResultsBody"></tbody>
+      </table>
+    </section>
+
+  </div>
 </div>
-
-<ul id="skierList"></ul>
-
-<!-- ==================== RESULTS BY RUN ==================== -->
-<h2>Resultater for et run</h2>
-
-<div class="row">
-  <input type="number" id="runIdInput" placeholder="Run ID">
-  <button onclick="loadRunResults()">Load Run Results</button>
-</div>
-
-<table>
-  <thead>
-  <tr>
-    <th>Skier</th>
-    <th>Nation</th>
-    <th>Time (sek)</th>
-  </tr>
-  </thead>
-  <tbody id="runResultsBody"></tbody>
-</table>
 
 <script src="/js/app.js"></script>
 </body>
