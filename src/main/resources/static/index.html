@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <title>Vinter OL</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+<h1>Vinter OL – Styrtløb</h1>
+
+<div id="statusBox" class="status hidden"></div>
+
+<!-- ==================== COMPETITIONS ==================== -->
+<h2>Konkurrencer</h2>
+<button onclick="loadCompetitions()">Load Competitions</button>
+<ul id="competitionList"></ul>
+
+<!-- ==================== LEADERBOARD ==================== -->
+<h2>Leaderboard</h2>
+<p>Vælg en konkurrence ovenfor for at se leaderboard.</p>
+
+<table>
+  <thead>
+  <tr>
+    <th>Position</th>
+    <th>Skier</th>
+    <th>Nation</th>
+    <th>Total Time (sek)</th>
+  </tr>
+  </thead>
+  <tbody id="leaderboardBody"></tbody>
+</table>
+
+<!-- ==================== SKIERS BY NATION ==================== -->
+<h2>Løbere pr. nation</h2>
+
+<div class="row">
+  <input type="number" id="nationIdInput" placeholder="Nation ID">
+  <button onclick="loadSkiers()">Load Skiers</button>
+</div>
+
+<ul id="skierList"></ul>
+
+<!-- ==================== RESULTS BY RUN ==================== -->
+<h2>Resultater for et run</h2>
+
+<div class="row">
+  <input type="number" id="runIdInput" placeholder="Run ID">
+  <button onclick="loadRunResults()">Load Run Results</button>
+</div>
+
+<table>
+  <thead>
+  <tr>
+    <th>Skier</th>
+    <th>Nation</th>
+    <th>Time (sek)</th>
+  </tr>
+  </thead>
+  <tbody id="runResultsBody"></tbody>
+</table>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

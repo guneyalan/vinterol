@@ -1,0 +1,68 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+h2 {
+    margin-top: 28px;
+}
+
+.row {
+    margin: 10px 0;
+}
+
+input {
+    padding: 8px;
+    width: 160px;
+}
+
+button {
+    padding: 8px 12px;
+    cursor: pointer;
+    margin-left: 6px;
+}
+
+ul {
+    padding-left: 18px;
+}
+
+table {
+    border-collapse: collapse;
+    margin-top: 12px;
+    width: 700px;
+    max-width: 100%;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background: #f0f0f0;
+}
+
+/* status box */
+.status {
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin: 14px 0 18px 0;
+    border: 1px solid #ddd;
+}
+
+.status.success {
+    background: #eef8ee;
+}
+
+.status.error {
+    background: #fdeeee;
+}
+
+.hidden {
+    display: none;
+}
