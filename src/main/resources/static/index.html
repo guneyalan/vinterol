@@ -26,13 +26,25 @@
       </div>
     </section>
 
-    <!-- CREATE SKIER -->
+    <!-- CREATE SKIER (POST /skiers) -->
     <section class="card">
       <h2>Opret løber</h2>
       <div class="row">
         <input type="text" id="skierNameInput" placeholder="Skier name">
         <select id="nationSelectForSkier"></select>
         <button onclick="createSkier()">Create</button>
+      </div>
+    </section>
+
+    <!-- UPDATE + DELETE SKIER (PUT + DELETE /skiers/{id}) -->
+    <section class="card">
+      <h2>Opdater / Slet løber</h2>
+      <div class="row">
+        <select id="skierSelectForUpdate"></select>
+        <input type="text" id="skierUpdateNameInput" placeholder="New name">
+        <select id="nationSelectForUpdate"></select>
+        <button onclick="updateSkier()">Update</button>
+        <button class="secondary" onclick="deleteSkier()">Delete</button>
       </div>
     </section>
 

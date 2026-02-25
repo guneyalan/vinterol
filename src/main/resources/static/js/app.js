@@ -30,11 +30,33 @@ async function fetchJson(url, options) {
     return body;
 }
 
+// for DELETE that may return 204 (no body)
+async function fetchNoBody(url, options) {
+    setStatus("", "success");
+    const res = await fetch(url, options);
+
+    if (res.status === 204) return;
+
+    let body = null;
+    try {
+        body = await res.json();
+    } catch (e) {
+        body = null;
+    }
+
+    if (!res.ok) {
+        const msg = body && body.message ? body.message : `Request failed (${res.status})`;
+        throw new Error(msg);
+    }
+}
+
 function fillSelect(selectId, items, getValue, getLabel) {
     const sel = document.getElementById(selectId);
-    const current = sel.value;
+    if (!sel) return;
 
+    const current = sel.value;
     sel.innerHTML = "";
+
     items.forEach(it => {
         const opt = document.createElement("option");
         opt.value = String(getValue(it));
@@ -42,7 +64,6 @@ function fillSelect(selectId, items, getValue, getLabel) {
         sel.appendChild(opt);
     });
 
-    // prøv at bevare tidligere valg hvis muligt
     if (current && Array.from(sel.options).some(o => o.value === current)) {
         sel.value = current;
     }
@@ -50,6 +71,8 @@ function fillSelect(selectId, items, getValue, getLabel) {
 
 function clearSelect(selectId, placeholderText) {
     const sel = document.getElementById(selectId);
+    if (!sel) return;
+
     sel.innerHTML = "";
     const opt = document.createElement("option");
     opt.value = "";
@@ -75,25 +98,42 @@ async function loadRunsIntoDropdowns(competitionId) {
     fillSelect("runSelectForView", runs, r => r.id, r => `Run ${r.runNumber} (id=${r.id})`);
 }
 
+async function syncUpdateSkierInputs() {
+    const skierSel = document.getElementById("skierSelectForUpdate");
+    const nameInput = document.getElementById("skierUpdateNameInput");
+    const nationSel = document.getElementById("nationSelectForUpdate");
+    if (!skierSel || !nameInput || !nationSel) return;
+
+    const skierId = skierSel.value;
+    if (!skierId) return;
+
+    const skiers = await fetchJson("/skiers");
+    const s = skiers.find(x => String(x.id) === String(skierId));
+    if (!s) return;
+
+    nameInput.value = s.name;
+    nationSel.value = String(s.nationId);
+}
+
 async function refreshDropdowns() {
     try {
         const nations = await fetchJson("/nations");
         fillSelect("nationSelectForSkier", nations, n => n.id, n => `${n.name} (id=${n.id})`);
         fillSelect("nationSelectForView", nations, n => n.id, n => `${n.name} (id=${n.id})`);
+        fillSelect("nationSelectForUpdate", nations, n => n.id, n => `${n.name} (id=${n.id})`);
 
         const competitions = await fetchJson("/competitions");
         fillSelect("competitionSelectForRun", competitions, c => c.id, c => `${c.name} (id=${c.id})`);
-
-        // ✅ NYT: bruger samme competition-valg til at styre run dropdowns
         fillSelect("competitionSelectForRuns", competitions, c => c.id, c => `${c.name} (id=${c.id})`);
 
         const skiers = await fetchJson("/skiers");
         fillSelect("skierSelectForResult", skiers, s => s.id, s => `${s.name} (id=${s.id}, ${s.nationName})`);
+        fillSelect("skierSelectForUpdate", skiers, s => s.id, s => `${s.name} (id=${s.id}, ${s.nationName})`);
 
-        // load runs for currently selected competition in competitionSelectForRuns
-        const selectedCompId = document.getElementById("competitionSelectForRuns").value;
+        const selectedCompId = document.getElementById("competitionSelectForRuns")?.value;
         await loadRunsIntoDropdowns(selectedCompId);
 
+        await syncUpdateSkierInputs();
     } catch (e) {
         setStatus(e.message, "error");
     }
@@ -103,6 +143,7 @@ async function refreshDropdowns() {
 
 async function createNation() {
     const name = document.getElementById("nationNameInput").value;
+
     try {
         await fetchJson("/nations", {
             method: "POST",
@@ -129,6 +170,45 @@ async function createSkier() {
         });
         setStatus("Skier created.", "success");
         document.getElementById("skierNameInput").value = "";
+        await refreshDropdowns();
+    } catch (e) {
+        setStatus(e.message, "error");
+    }
+}
+
+// PUT /skiers/{id}
+async function updateSkier() {
+    const skierId = Number(document.getElementById("skierSelectForUpdate").value);
+    const name = document.getElementById("skierUpdateNameInput").value;
+    const nationId = Number(document.getElementById("nationSelectForUpdate").value);
+
+    try {
+        await fetchJson(`/skiers/${skierId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, nationId })
+        });
+        setStatus("Skier updated.", "success");
+        await refreshDropdowns();
+    } catch (e) {
+        setStatus(e.message, "error");
+    }
+}
+
+// DELETE /skiers/{id}
+async function deleteSkier() {
+    const skierId = Number(document.getElementById("skierSelectForUpdate").value);
+    if (!skierId) {
+        setStatus("Select a skier first.", "error");
+        return;
+    }
+
+    const ok = confirm("Are you sure you want to delete this skier?");
+    if (!ok) return;
+
+    try {
+        await fetchNoBody(`/skiers/${skierId}`, { method: "DELETE" });
+        setStatus("Skier deleted.", "success");
         await refreshDropdowns();
     } catch (e) {
         setStatus(e.message, "error");
@@ -242,6 +322,7 @@ async function loadLeaderboard(id) {
 
 async function loadSkiersForSelectedNation() {
     const nationId = Number(document.getElementById("nationSelectForView").value);
+
     try {
         const data = await fetchJson(`/nations/${nationId}/skiers`);
         const list = document.getElementById("skierList");
@@ -264,6 +345,7 @@ async function loadResultsForSelectedRun() {
     if (!runIdStr) { setStatus("Select a run first.", "error"); return; }
 
     const runId = Number(runIdStr);
+
     try {
         const data = await fetchJson(`/runs/${runId}/results`);
         const body = document.getElementById("runResultsBody");
@@ -288,9 +370,6 @@ async function loadResultsForSelectedRun() {
 /* ==================== INIT ==================== */
 
 window.addEventListener("load", async () => {
-    //  tilføjer et competition dropdown der styrer runs for result/view
-    // Vi opretter den i DOM ved start hvis den ikke findes (så index.html ikke behøver ændres meget)
-    // MEN: for at holde det 100% simpelt og stabilt kræver vi at index.html har den.
     await refreshDropdowns();
 
     const compRunsSel = document.getElementById("competitionSelectForRuns");
@@ -298,6 +377,17 @@ window.addEventListener("load", async () => {
         compRunsSel.addEventListener("change", async () => {
             try {
                 await loadRunsIntoDropdowns(compRunsSel.value);
+            } catch (e) {
+                setStatus(e.message, "error");
+            }
+        });
+    }
+
+    const skierUpdateSel = document.getElementById("skierSelectForUpdate");
+    if (skierUpdateSel) {
+        skierUpdateSel.addEventListener("change", async () => {
+            try {
+                await syncUpdateSkierInputs();
             } catch (e) {
                 setStatus(e.message, "error");
             }
