@@ -19,25 +19,25 @@ public class SkierController {
         this.skierService = skierService;
     }
 
-    // GET /skiers (til dropdowns)
+
     @GetMapping("/skiers")
     public ResponseEntity<List<SkierResponseDTO>> getAll() {
         return ResponseEntity.ok(skierService.getAllSkiers());
     }
 
-    // POST /skiers
+
     @PostMapping("/skiers")
     public ResponseEntity<SkierResponseDTO> create(@RequestBody SkierRequestDTO req) {
         return ResponseEntity.ok(skierService.createSkier(req));
     }
 
-    // PUT /skiers/{id}
+
     @PutMapping("/skiers/{id}")
     public ResponseEntity<SkierResponseDTO> update(@PathVariable Long id, @RequestBody SkierRequestDTO req) {
         return ResponseEntity.ok(skierService.updateSkier(id, req));
     }
 
-    // DELETE /skiers/{id}
+
     @DeleteMapping("/skiers/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         skierService.deleteSkier(id);

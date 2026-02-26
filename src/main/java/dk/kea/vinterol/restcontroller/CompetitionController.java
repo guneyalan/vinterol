@@ -25,31 +25,31 @@ public class CompetitionController {
         this.resultService = resultService;
     }
 
-    // GET /competitions
+
     @GetMapping("/competitions")
     public ResponseEntity<List<CompetitionResponseDTO>> getCompetitions() {
         return ResponseEntity.ok(competitionService.getAllCompetitions());
     }
 
-    // POST /competitions
+
     @PostMapping("/competitions")
     public ResponseEntity<CompetitionResponseDTO> createCompetition(@RequestBody CompetitionRequestDTO req) {
         return ResponseEntity.ok(competitionService.createCompetition(req));
     }
 
-    // GET /competitions/{id}/runs
+
     @GetMapping("/competitions/{id}/runs")
     public ResponseEntity<List<RunResponseDTO>> getRuns(@PathVariable Long id) {
         return ResponseEntity.ok(competitionService.getRunsForCompetition(id));
     }
 
-    // POST /competitions/{id}/runs
+
     @PostMapping("/competitions/{id}/runs")
     public ResponseEntity<RunResponseDTO> createRun(@PathVariable Long id, @RequestBody RunRequestDTO req) {
         return ResponseEntity.ok(competitionService.createRun(id, req));
     }
 
-    // GET /competitions/{id}/leaderboard
+
     @GetMapping("/competitions/{id}/leaderboard")
     public ResponseEntity<List<LeaderboardEntryDTO>> leaderboard(@PathVariable Long id) {
         return ResponseEntity.ok(resultService.getLeaderboardForCompetition(id));

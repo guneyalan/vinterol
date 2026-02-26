@@ -23,19 +23,19 @@ public class NationController {
         this.nationService = nationService;
     }
 
-    // GET /nations
+
     @GetMapping("/nations")
     public ResponseEntity<List<NationResponseDTO>> getAllNations() {
         return ResponseEntity.ok(nationService.getAllNations());
     }
 
-    // POST /nations
+
     @PostMapping("/nations")
     public ResponseEntity<NationResponseDTO> createNation(@RequestBody NationRequestDTO req) {
         return ResponseEntity.ok(nationService.createNation(req));
     }
 
-    // GET /nations/{nationId}/skiers
+
     @GetMapping("/nations/{nationId}/skiers")
     public ResponseEntity<List<SkierResponseDTO>> getSkiersByNation(@PathVariable Long nationId) {
         return ResponseEntity.ok(skierService.getSkiersByNation(nationId));
