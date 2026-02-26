@@ -1,3 +1,7 @@
+/**
+ * Viser status/fejl-besked i toppen af siden.
+ * type = "success" eller "error"
+ */
 function setStatus(message, type) {
     const box = document.getElementById("statusBox");
     if (!message) {
@@ -12,6 +16,10 @@ function setStatus(message, type) {
     box.classList.add(type === "error" ? "error" : "success");
 }
 
+/**
+ * Fetch der forventer JSON tilbage.
+ * Kaster en fejl med en pæn besked hvis status ikke er OK.
+ */
 async function fetchJson(url, options) {
     setStatus("", "success");
     const res = await fetch(url, options);
@@ -30,7 +38,9 @@ async function fetchJson(url, options) {
     return body;
 }
 
-// for DELETE that may return 204 (no body)
+/**
+ * Fetch til endpoints der kan returnere 204 No Content (fx DELETE).
+ */
 async function fetchNoBody(url, options) {
     setStatus("", "success");
     const res = await fetch(url, options);
@@ -50,6 +60,9 @@ async function fetchNoBody(url, options) {
     }
 }
 
+/**
+ * Fylder en <select> med options.
+ */
 function fillSelect(selectId, items, getValue, getLabel) {
     const sel = document.getElementById(selectId);
     if (!sel) return;
@@ -64,11 +77,15 @@ function fillSelect(selectId, items, getValue, getLabel) {
         sel.appendChild(opt);
     });
 
+    // Bevar valgt item hvis muligt
     if (current && Array.from(sel.options).some(o => o.value === current)) {
         sel.value = current;
     }
 }
 
+/**
+ * Tømmer select og sætter en placeholder option.
+ */
 function clearSelect(selectId, placeholderText) {
     const sel = document.getElementById(selectId);
     if (!sel) return;
@@ -80,6 +97,9 @@ function clearSelect(selectId, placeholderText) {
     sel.appendChild(opt);
 }
 
+/**
+ * Henter runs for en konkurrence og fylder run-dropdowns (result + view).
+ */
 async function loadRunsIntoDropdowns(competitionId) {
     if (!competitionId) {
         clearSelect("runSelectForResult", "Select run");
@@ -98,6 +118,9 @@ async function loadRunsIntoDropdowns(competitionId) {
     fillSelect("runSelectForView", runs, r => r.id, r => `Run ${r.runNumber} (id=${r.id})`);
 }
 
+/**
+ * Synkroniserer "Opdater løber" felter baseret på valgt løber.
+ */
 async function syncUpdateSkierInputs() {
     const skierSel = document.getElementById("skierSelectForUpdate");
     const nameInput = document.getElementById("skierUpdateNameInput");
@@ -115,6 +138,9 @@ async function syncUpdateSkierInputs() {
     nationSel.value = String(s.nationId);
 }
 
+/**
+ * Opdaterer alle dropdowns i UI (nations, skiers, competitions, runs).
+ */
 async function refreshDropdowns() {
     try {
         const nations = await fetchJson("/nations");
@@ -130,6 +156,7 @@ async function refreshDropdowns() {
         fillSelect("skierSelectForResult", skiers, s => s.id, s => `${s.name} (id=${s.id}, ${s.nationName})`);
         fillSelect("skierSelectForUpdate", skiers, s => s.id, s => `${s.name} (id=${s.id}, ${s.nationName})`);
 
+        // runs følger valgt konkurrence i competitionSelectForRuns
         const selectedCompId = document.getElementById("competitionSelectForRuns")?.value;
         await loadRunsIntoDropdowns(selectedCompId);
 
@@ -139,8 +166,9 @@ async function refreshDropdowns() {
     }
 }
 
-/* ==================== CREATE ACTIONS ==================== */
+/* ==================== CREATE/UPDATE/DELETE ==================== */
 
+/** Opret nation (POST /nations) */
 async function createNation() {
     const name = document.getElementById("nationNameInput").value;
 
@@ -158,6 +186,7 @@ async function createNation() {
     }
 }
 
+/** Opret løber (POST /skiers) */
 async function createSkier() {
     const name = document.getElementById("skierNameInput").value;
     const nationId = Number(document.getElementById("nationSelectForSkier").value);
@@ -176,7 +205,7 @@ async function createSkier() {
     }
 }
 
-// PUT /skiers/{id}
+/** Opdater løber (PUT /skiers/{id}) */
 async function updateSkier() {
     const skierId = Number(document.getElementById("skierSelectForUpdate").value);
     const name = document.getElementById("skierUpdateNameInput").value;
@@ -195,7 +224,7 @@ async function updateSkier() {
     }
 }
 
-// DELETE /skiers/{id}
+/** Slet løber (DELETE /skiers/{id}) */
 async function deleteSkier() {
     const skierId = Number(document.getElementById("skierSelectForUpdate").value);
     if (!skierId) {
@@ -215,6 +244,7 @@ async function deleteSkier() {
     }
 }
 
+/** Opret konkurrence (POST /competitions) */
 async function createCompetition() {
     const name = document.getElementById("competitionNameInput").value;
     const date = document.getElementById("competitionDateInput").value || null;
@@ -233,6 +263,7 @@ async function createCompetition() {
     }
 }
 
+/** Opret run (POST /competitions/{id}/runs) */
 async function createRun() {
     const competitionId = Number(document.getElementById("competitionSelectForRun").value);
     const runNumber = Number(document.getElementById("runNumberInput").value);
@@ -251,6 +282,7 @@ async function createRun() {
     }
 }
 
+/** Opret resultat (POST /results) */
 async function createResult() {
     const runIdStr = document.getElementById("runSelectForResult").value;
     const skierIdStr = document.getElementById("skierSelectForResult").value;
@@ -275,8 +307,9 @@ async function createResult() {
     }
 }
 
-/* ==================== VIEW ACTIONS ==================== */
+/* ==================== VISNINGER ==================== */
 
+/** Hent og vis konkurrencer */
 async function loadCompetitions() {
     try {
         const competitions = await fetchJson("/competitions");
@@ -297,6 +330,7 @@ async function loadCompetitions() {
     }
 }
 
+/** Hent og vis leaderboard for en konkurrence */
 async function loadLeaderboard(id) {
     try {
         const data = await fetchJson(`/competitions/${id}/leaderboard`);
@@ -320,6 +354,7 @@ async function loadLeaderboard(id) {
     }
 }
 
+/** Hent og vis løbere for valgt nation */
 async function loadSkiersForSelectedNation() {
     const nationId = Number(document.getElementById("nationSelectForView").value);
 
@@ -340,6 +375,7 @@ async function loadSkiersForSelectedNation() {
     }
 }
 
+/** Hent og vis resultater for valgt run */
 async function loadResultsForSelectedRun() {
     const runIdStr = document.getElementById("runSelectForView").value;
     if (!runIdStr) { setStatus("Select a run first.", "error"); return; }
@@ -367,11 +403,36 @@ async function loadResultsForSelectedRun() {
     }
 }
 
+/**
+ * NY FUNKTION:
+ * Hent og vis hurtigste løber for valgt run (GET /runs/{runId}/fastest)
+ */
+async function loadFastestForSelectedRun() {
+    const runIdStr = document.getElementById("runSelectForView").value;
+    if (!runIdStr) { setStatus("Select a run first.", "error"); return; }
+
+    const runId = Number(runIdStr);
+
+    try {
+        const fastest = await fetchJson(`/runs/${runId}/fastest`);
+        const box = document.getElementById("fastestBox");
+        box.classList.remove("hidden");
+        box.classList.remove("error", "success");
+        box.classList.add("success");
+        box.textContent = `Hurtigste: ${fastest.skierName} (${fastest.nationName}) – ${fastest.timeSeconds} sek.`;
+        setStatus("Fastest loaded.", "success");
+    } catch (e) {
+        setStatus(e.message, "error");
+    }
+}
+
 /* ==================== INIT ==================== */
 
 window.addEventListener("load", async () => {
+    // Opdater dropdowns ved start
     await refreshDropdowns();
 
+    // Når man skifter konkurrence, skal runs opdateres
     const compRunsSel = document.getElementById("competitionSelectForRuns");
     if (compRunsSel) {
         compRunsSel.addEventListener("change", async () => {
@@ -383,6 +444,7 @@ window.addEventListener("load", async () => {
         });
     }
 
+    // Når man vælger en løber til update, forfyld felter
     const skierUpdateSel = document.getElementById("skierSelectForUpdate");
     if (skierUpdateSel) {
         skierUpdateSel.addEventListener("change", async () => {
