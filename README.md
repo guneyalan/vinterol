@@ -1,4 +1,4 @@
-Programmering Eksamen 2026 – Vinter OL Styrtløb
+Programmering Eksamen 2026 – Vinter OL 
 
 Github link:
 https://github.com/guneyalan/vinterol
